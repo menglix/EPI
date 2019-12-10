@@ -1,0 +1,2 @@
+## This directory contains the matching code between the epigenomic and sequence data
+## k562.py generate match and unmatched dictionary for post_match_K562.py.
