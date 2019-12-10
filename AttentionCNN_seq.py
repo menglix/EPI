@@ -27,7 +27,7 @@ import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-param_ind = 30
+param_ind = 30 ## after grid search on the validation data
 enhancer_length = 600 
 promoter_length = 400 
 filter_length = 4 
@@ -172,14 +172,17 @@ print('Now the shape is:'+str(X_enhancers.shape))
 file_path='/panfs/roc/groups/1/panwei/xiaox345/data/targetfinder/Data/'
 cell_line='K562'
 ## re-order the sequence data to follow the epigenomics order
+## The .npy files is generated from pickle file in python 2.7 script, so we need to use .npy as a file connector
+## The following steps could be further optimized if the model training and data preprocessing is done within the same python version
 seq_order = np.load(file_path+'/Seq_order.npy')
 X_enhancers = X_enhancers[seq_order]
 X_promoters = X_promoters[seq_order]
 labels = labels[seq_order]
-
+## genomic data comes from this pandas dataframe, but this dataframe was re-ordered before matching with sequence
+# this is used to accommodate lacking of the package in the Python 3.5 in the GPU cluster computing platform, could be simplified if keras and the package pandas are installed at the same time.
 chromls = np.load(file_path+cell_line+'/chromls.npy').tolist()
-a_cum = np.load(file_path+cell_line+'/a_cum.npy').tolist()
-b_cum = np.load(file_path+cell_line+'/b_cum.npy').tolist()
+a_cum = np.load(file_path+cell_line+'/a_cum.npy').tolist() # positive sample indicator for each chromosome, it records the cumulative index of samples in each chromosome
+b_cum = np.load(file_path+cell_line+'/b_cum.npy').tolist() # negative sample indicator for each chromosome, it records the cumulative index of samples in each chromosome
 chromls = [x.decode('utf-8') for x in chromls]
 chromls2 = list(chromls[:-3])+[chromls[-1]]
 
@@ -228,7 +231,7 @@ X_enhancers_tra = X_enhancers[tra_ind]
 X_promoters_tra = X_promoters[tra_ind]
 labels_tra = labels[tra_ind]
 
-
+### take the regional sequence , for enhancer, we took the data from the middle 600 bp, for promoter, we took the data from the middle 400 bp.
 X_enhancers_tra = X_enhancers_tra[:, 1200:1800, :]
 X_promoters_tra = X_promoters_tra[:, 800:1200, :]
 X_enhancers_ts = X_enhancers_ts[:, 1200:1800, :]

@@ -34,7 +34,7 @@ import random
 import argparse
 
 
-param_ind = 150
+param_ind = 150 # after grid search in validation data
 file_path = '/panfs/roc/groups/1/panwei/xiaox345/data/targetfinder/Data/'
 cell_line = 'K562'
 
@@ -108,6 +108,9 @@ def evaluate(model,X_enhancers_val,X_promoters_val, test_labels):
 
 
 class BalancedSequence(Sequence):
+        '''
+        Generate balanced mini-batch during the training process
+        '''
     def __init__(self, X1,X2, y, batch_size, process_fn=None):
         """A `Sequence` implementation that returns balanced `y` by undersampling majority class.
 
@@ -264,11 +267,6 @@ def model_3lyr_build_res(feature_maps1,res_layer,kernel_size1, max_pool1,hidden_
     return model
 
 
-# def evaluate_tf(model,X_enhancers,X_promoters, labels):
-    # X_enhancers=np_utils.normalize(X_enhancers,axis=0)
-    # X_promoters=np_utils.normalize(X_promoters,axis=0)
-    # evaluate(model,(X_enhancers,X_promoters),labels)
-
 def evaluate_model(model):
     print('The validation performance is:')
     a1, a2, a3 = evaluate(model,X_enhancers_val,X_promoters_val,labels_val)
@@ -278,31 +276,26 @@ def evaluate_model(model):
     c1, c2, c3 = evaluate(model,X_enhancers_ts,X_promoters_ts,labels_ts)
     return a1, a2, a3, b1, b2, b3, c1, c2, c3
 
-def retrain():
-    K.clear_session()
-    set_random_seed(11)
-    random.seed(11)
-    tf.set_random_seed(11)
-    sess = tf.Session(graph=tf.get_default_graph())
-    # start a new session
-    K.set_session(sess)
-
 
 
 #### match key correction 
 ## previous pandas data 
 cell_line = 'K562'
 ### new_old.npy is the 1-1 correspondance between original targetfinder dataset and the dataset after sorting by label and chromosomes
+## The .npy files is generated from pickle file in python 2.7 script, so we need to use .npy as a file connector
+## The following steps could be further optimized if the model training and data preprocessing is done within the same python version
 a = np.load(file_path+cell_line+'/new_old.npy')
 X_enhancers = X_enhancers[a]
 X_promoters = X_promoters[a]
-
+## genomic data comes from this pandas dataframe, but this dataframe was re-ordered before matching with sequence
+# this is used to accommodate lacking of the package in the Python 3.5 in the GPU cluster computing platform, could be simplified if keras and the package pandas are installed at the same time.
 chromls = np.load(file_path+cell_line+'/chromls.npy').tolist()
-a_cum = np.load(file_path+cell_line+'/a_cum.npy').tolist() # positive sample indicator
-b_cum = np.load(file_path+cell_line+'/b_cum.npy').tolist() # negative sample indicator
+a_cum = np.load(file_path+cell_line+'/a_cum.npy').tolist() # positive sample indicator for each chromosome, it records the cumulative index of samples in each chromosome
+b_cum = np.load(file_path+cell_line+'/b_cum.npy').tolist() # negative sample indicator for each chromosome, it records the cumulative index of samples in each chromosome
 chromls = [x.decode('utf-8') for x in chromls]
 chromls2 = list(chromls[:-3])+[chromls[-1]]
-
+#### chromls2 contains chromosomes other than the validation chromosome
+#### The index corresponds to the order in epigenomics data
 # chrom = chromls2[ind]
 chrom = 'chr1'
 i = chromls.index(chrom)
