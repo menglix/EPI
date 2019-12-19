@@ -25,7 +25,7 @@ Run:
 
     python k562.py 
 
-Then, the match correction requires interactive run of post_match_K562.py TO get the one-to-one matched dictionary in Python
+Then, the match correction requires interactive run of post_match_K562.py to get the one-to-one matched dictionary in Python
 ### Analysis
 1. Sequence training
  
