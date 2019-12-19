@@ -6,7 +6,7 @@ For training scripts:
 
 Python 3.5.4 :: Anaconda, Inc.
 
-Keras 2.0.9
+Keras 2.0.9 with Tensorflow 1.8.0
 
 For data preprocessing:
 
@@ -17,11 +17,19 @@ The sequence and epigenomic data we used can be downloaded from https://github.c
 ## Codes
 We should first run otherFiles.py, and then \*_EPI.py/\*_seq.py/Combine_seq_epigenomics.py.
 ### Match sequence with the epigenomic data
-1. k562.py 
-2. post_match_K562.py
-3. get the one-to-one matched dictionary in Python
+Run: 
+    python k562.py 
+Then, the match correction requires interactive run of post_match_K562.py TO get the one-to-one matched dictionary in Python
 ### Analysis
-1. Sequence training: BasicCNN_seq.py | AttentionCNN_seq.py | ResNetCNN_seq.py
-2. Epigenomic training: BasicCNN_EPI.py | ResNetCNN_EPI.py
-3. Combined model: Combine_seq_epigenomics.py (use the matched dictionary between the sequence and epigenomic data)
+1. Sequence training, run:
+    python BasicCNN_seq.py
+    python AttentionCNN_seq.py
+    python ResNetCNN_seq.py
+2. Epigenomic training, run:
+    python BasicCNN_EPI.py
+    python ResNetCNN_EPI.py
+3. Combined model (use the matched dictionary between the sequence and epigenomic data), run: 
+    python Combine_seq_epigenomics.py 
+
+All codes are self-explanatory with detailed comments. If you have any questions, please contact xiaox345@umn.edu.
 
